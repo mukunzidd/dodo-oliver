@@ -1,0 +1,22 @@
+# cbatechno-web in a container.
+#
+# Supabase is NOT defined here — it runs as its own Docker stack via the Supabase
+# CLI (`cd cbatechno-backend && supabase start`), which includes Postgres, Auth,
+# Storage, and Mailpit (local email preview). See cbatechno-backend/README.md.
+#
+#   docker compose up --build        # build + run the web app on :3000
+services:
+  web:
+    build:
+      context: .
+      dockerfile: cbatechno-web/Dockerfile
+      args:
+        # VITE_* are baked at build time. Publishable key is a public client key;
+        # override via a root .env to target a different Supabase project.
+        VITE_SUPABASE_URL: ${VITE_SUPABASE_URL:-https://kwkhhrjxuleftlinazaz.supabase.co}
+        VITE_SUPABASE_PUBLISHABLE_KEY: ${VITE_SUPABASE_PUBLISHABLE_KEY:-sb_publishable_IIxqNoHqLXdS1i8AC4JQGw_p0Pb6a48}
+    ports:
+      - '3000:3000'
+    environment:
+      PORT: '3000'
+    restart: unless-stopped

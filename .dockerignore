@@ -1,0 +1,17 @@
+# Keep the web-image build context lean. Only cbatechno-shared + cbatechno-web are
+# needed (web depends on shared via file:../cbatechno-shared); everything is
+# (re)installed inside the image.
+**/node_modules
+**/dist
+**/.output
+**/.tanstack
+**/.git
+**/.env
+**/.env.*
+!**/.env.example
+
+# Not part of the web image.
+cbatechno-mobile
+cba-tecno-mobile
+cbatechno-backend
+docs
