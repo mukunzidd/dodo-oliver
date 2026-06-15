@@ -1,3 +1,10 @@
+> ⚠️ **SUPERSEDED 2026-06-15.** This is the original (Oct 2025) V1 plan for the
+> abandoned stack — Next.js 15 + Typesense + self-hosted Supabase on Hetzner/Coolify.
+> The project pivoted to TanStack + Expo + Supabase. Current plan:
+> [`docs/05-development/roadmap.md`](../05-development/roadmap.md). Kept for history.
+
+---
+
 # Development Roadmap - CBATechno Discovery Platform
 
 **Version**: 1.0
