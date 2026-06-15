@@ -16,7 +16,7 @@ STUDIO_URL  := http://127.0.0.1:54323
 MAILPIT_URL := http://127.0.0.1:54324
 
 .DEFAULT_GOAL := help
-.PHONY: help install dev \
+.PHONY: help install dev dev-restart \
         db-start db-stop db-restart db-status db-studio mail db-reset db-push db-diff \
         db-types db-seed db-migrate functions-serve advisors \
         web-dev web-build web-test web-lint web-format \
@@ -34,6 +34,11 @@ help: ## Show this help
 		| awk 'BEGIN{FS=":.*?## "}; {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}'
 
 dev: db-start ## Start local backend, then run the web app against it (local by default)
+	@echo "Local Supabase up — Studio: $(STUDIO_URL). Web app uses .env.local (local)."
+	cd $(WEB) && bun run dev
+
+dev-restart: db-restart ## Restart everything: Supabase stack + web dev server (:3000)
+	-lsof -ti tcp:3000 | xargs kill 2>/dev/null || true
 	@echo "Local Supabase up — Studio: $(STUDIO_URL). Web app uses .env.local (local)."
 	cd $(WEB) && bun run dev
 
