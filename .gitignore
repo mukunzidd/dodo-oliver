@@ -1,11 +1,15 @@
 # Independent app repos — each is its own git repo, not tracked by dodo-oliver.
-# (CBATechno multi-client re-platform; see cba-tecno-mobile/docs/07-replatform/)
+# (CBATechno multi-client re-platform; see cbatechno-docs/docs/07-replatform/)
 /cbatechno-shared/
 /cbatechno-backend/
 /cbatechno-customer-web/
 /cbatechno-vendor-web/
 /cbatechno-admin-web/
 /cbatechno-mobile/
+/cbatechno-web/
+
+# Per-machine Claude settings
+**/.claude/settings.local.json
 
 # OS / editor noise
 .DS_Store
