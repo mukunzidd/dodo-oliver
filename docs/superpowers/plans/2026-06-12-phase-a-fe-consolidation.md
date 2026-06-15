@@ -4,6 +4,13 @@
 
 **Goal:** Collapse the customer, vendor, and admin web apps into one deployable TanStack Start app (`cbatechno-web`) with real Supabase auth and role-gated `/vendor/*` and `/admin/*` route groups, all wired to the live schema via `@cbatechno/shared`.
 
+> **Status (2026-06-15):** Partially executed. Repo-level consolidation **done** —
+> `cbatechno-customer-web` renamed to `cbatechno-web`; `cbatechno-vendor-web` and
+> `cbatechno-admin-web` folded in and removed; real Supabase auth wired. **Pending:**
+> the `_vendor/*` / `_admin/*` route groups and replacing mock `src/data/*` with real
+> queries — now tracked as Phases 1–2 in [`roadmap.md`](../../05-development/roadmap.md).
+> Checkboxes below are not maintained; the roadmap is authoritative.
+
 **Architecture:** One TanStack Start (SSR) app. A client-hydrated `AuthProvider` exposes session + roles through TanStack Router context; `beforeLoad` guards on pathless `_vendor`/`_admin` layout routes enforce access, with component-level role enforcement handling the SSR/hydration window (vendor/admin render client-side, no sensitive data is server-rendered; RLS protects all queries regardless). Data access goes through the `@cbatechno/shared` SDK + `queryKeys` + TanStack Query.
 
 **Tech Stack:** TanStack Start + Router (file-based, flat dotted routes), React 19, TanStack Query v5, `@supabase/supabase-js` v2, Zod v4, Vite 8, Vitest 4, Bun.

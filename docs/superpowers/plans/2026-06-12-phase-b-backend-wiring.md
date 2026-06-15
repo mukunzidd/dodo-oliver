@@ -4,6 +4,12 @@
 
 **Goal:** Make the live backend fully operational end-to-end: auto-provision users on signup, deploy the (already-written) edge functions, wire payments + visual search into the web app, schedule cron jobs, and emit/deliver notifications.
 
+> **Status (2026-06-15):** Not started. Edge functions and schema exist; the glue
+> (provisioning trigger, storage bucket, secrets/deploy, payments + visual-search
+> wiring, cron, notifications) is unbuilt — now sequenced as Phases 1, 4, and 5 in
+> [`roadmap.md`](../../05-development/roadmap.md). Checkboxes below are not maintained;
+> the roadmap is authoritative.
+
 **Architecture:** The schema, RPCs, RLS, and all five edge functions already exist in `cbatechno-backend`. This phase adds the missing glue: a `handle_new_user` SQL trigger, a Storage bucket, secrets + function deploys, client→function integration calls, `pg_cron` schedules that invoke functions over HTTP via `pg_net`, and DB triggers that enqueue `notifications` rows for `push-dispatch` to deliver.
 
 **Tech Stack:** Supabase CLI (link/db push/functions deploy/secrets), Postgres (`pg_cron`, `pg_net`), Deno edge functions (Stripe, Flutterwave, OpenAI, Expo Push), the `cbatechno-web` app from Phase A.
