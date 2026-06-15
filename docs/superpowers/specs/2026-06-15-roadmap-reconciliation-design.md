@@ -29,8 +29,10 @@ This spec reconciles the docs to current reality and lays out a re-sequenced,
 |---|----------|--------|
 | 1 | Outcome = reconcile docs **and** produce a forward roadmap | Q1 |
 | 2 | **Local-first**: local Supabase is the source of truth; single cloud cutover later | Q2 |
-| 3 | First milestone = **real-data customer flow** | Q3 |
+| 3 | First milestone = **real-data customer flow** (web) | Q3 |
 | 4 | Doc strategy = **canonical rewrite + archive** (Approach A) | design review |
+| 5 | Mobile runs as an Expo **prebuild dev client** (and EAS builds), **not Expo Go** — the `cbatechnomobile://` auth deep-link scheme only resolves in a dev/standalone build | review |
+| 6 | **QA gate**: vendor + admin dashboards are tested before mobile feature work begins | review |
 
 ## Current status snapshot (2026-06-15)
 
@@ -45,7 +47,7 @@ This spec reconciles the docs to current reality and lays out a re-sequenced,
 ## Forward roadmap (re-sequenced to V1, local-first)
 
 - **Phase 0 — Reconcile docs** *(this exercise)*: produce the artifacts below.
-- **Phase 1 — Real-data customer flow** *(milestone #1)*:
+- **Phase 1 — Real-data customer flow (web)** *(milestone #1)*:
   - Backend-lite (local migrations): `handle_new_user` trigger (provision
     `user_profiles` + default `user_roles = buyer` on signup); `product-images`
     storage bucket + RLS policies; `npm run gen:types` from local → real
@@ -53,27 +55,37 @@ This spec reconciles the docs to current reality and lays out a re-sequenced,
   - Web: replace `src/data/*` with `@cbatechno/shared` queries (`getCategories`,
     `searchProducts`, `getProductBySlug`); real cart / wishlist / account / orders
     via Supabase; search via the `search_products` RPC.
-  - Mobile: customer browse / search / product on real data (mirror web queries);
-    session already wired.
   - **Exit:** sign up → browse real catalog → search → product → add to cart → view
-    account/orders, all on live local Supabase. Checkout/payment still stubbed.
-- **Phase 2 — Finish consolidation** *(Phase A remainder)*: `_vendor/*` + `_admin/*`
-  pathless route groups with `beforeLoad` role guards (`current_is_admin()` /
-  `current_supplier_id()`); vendor products(CRUD + image upload)/orders/messages/
-  analytics; admin suppliers/moderation/analytics/settings.
-- **Phase 3 — Commerce + comms** *(Phase B core)*: checkout → `create_order` RPC;
+    account/orders, all on live local Supabase (web). Checkout/payment still stubbed.
+- **Phase 2 — Finish consolidation + dashboard QA** *(Phase A remainder)*:
+  - `_vendor/*` + `_admin/*` pathless route groups with `beforeLoad` role guards
+    (`current_is_admin()` / `current_supplier_id()`); vendor products(CRUD + image
+    upload)/orders/messages/analytics; admin suppliers/moderation/analytics/settings.
+  - **Test gate (Decision #6):** manually verify the vendor **and** admin dashboards
+    end-to-end — role-gated access (correct redirects for the wrong role), CRUD, and
+    data on real local Supabase — **before** any mobile feature work begins.
+- **Phase 3 — Mobile customer buildout**:
+  - Customer browse / search / product / cart / account on real (local) data,
+    mirroring the web query layer; session + magic-link deep-linking already wired.
+  - Run as an Expo **prebuild dev client** (`npx expo prebuild` + a dev build),
+    **not Expo Go** (Decision #5) — the `cbatechnomobile://` deep-link scheme only
+    resolves in a dev/standalone build. iOS sim reaches `127.0.0.1`; Android emulator
+    uses `10.0.2.2`.
+- **Phase 4 — Commerce + comms** *(Phase B core)*: checkout → `create_order` RPC;
   Stripe (`intent`/`webhook`) + Flutterwave (`init`/`webhook`) via local functions
   serve; order status history; messaging (`conversations`/`messages`); notification
-  triggers + `push-dispatch`; `currency-sync`; `image-embed` visual search.
-- **Phase 4 — Cloud cutover + deploy** *(the "later" of Decision #2)*: `supabase
+  triggers + `push-dispatch`; `currency-sync`; `image-embed` visual search. Applies to
+  both the web and mobile customer flows.
+- **Phase 5 — Cloud cutover + deploy** *(the "later" of Decision #2)*: `supabase
   login` + `link` + `db push` + seed + `gen:types --linked` + `advisors`; edge-fn
   secrets + deploy; `pg_net`/`pg_cron` schedules; publish `@cbatechno/shared` to
-  GitHub Packages; deploy web (host TBD) + mobile build (EAS).
-- **Phase 5 — Polish / QA / launch**: reviews, testing/bug-fixes, launch prep
+  GitHub Packages; deploy web (host TBD) + mobile via **EAS** (dev → preview →
+  production profiles, consistent with the prebuild dev-client approach).
+- **Phase 6 — Polish / QA / launch**: reviews, testing/bug-fixes, launch prep
   (carried over from the original Phase 3).
 
-> Open item deferred to Phase 4: **web hosting target** (Vercel vs self-host) — not
-> needed for local-first phases 1–3.
+> Open item deferred to Phase 5: **web hosting target** (Vercel vs self-host) — not
+> needed for the local-first phases 1–4.
 
 ## Deliverables (the doc changes)
 
@@ -92,4 +104,4 @@ This spec reconciles the docs to current reality and lays out a re-sequenced,
 
 - No code changes in this exercise (docs only).
 - No cloud operations (local-first).
-- Web hosting decision (deferred to Phase 4).
+- Web hosting decision (deferred to Phase 5).
