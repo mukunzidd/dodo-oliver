@@ -16,13 +16,13 @@ STUDIO_URL  := http://127.0.0.1:54323
 MAILPIT_URL := http://127.0.0.1:54324
 
 .DEFAULT_GOAL := help
-.PHONY: help install dev dev-restart \
+.PHONY: help install dev dev-restart dev-down \
         db-start db-stop db-restart db-status db-studio mail db-reset db-push db-diff \
         db-types db-seed db-migrate functions-serve advisors \
-        web-dev web-build web-test web-lint web-format \
+        web-dev web-stop web-build web-test web-lint web-format \
         mobile-start mobile-ios mobile-android \
         shared-build shared-typecheck \
-        docker-up docker-down docker-logs \
+        docker-up docker-logs \
         check test clean
 
 ## ----------------------------------------------------------------------------
@@ -35,12 +35,14 @@ help: ## Show this help
 
 dev: db-start ## Start local backend, then run the web app against it (local by default)
 	@echo "Local Supabase up — Studio: $(STUDIO_URL). Web app uses .env.local (local)."
-	cd $(WEB) && bun run dev
+	$(MAKE) web-dev
 
-dev-restart: db-restart ## Restart everything: Supabase stack + web dev server (:3000)
-	-lsof -ti tcp:3000 | xargs kill 2>/dev/null || true
+dev-restart: db-restart web-stop ## Restart everything: Supabase stack + web dev server (:3000)
 	@echo "Local Supabase up — Studio: $(STUDIO_URL). Web app uses .env.local (local)."
-	cd $(WEB) && bun run dev
+	$(MAKE) web-dev
+
+dev-down: web-stop db-stop ## Stop everything: web dev server (:3000), web container, Supabase stack
+	-docker compose down 2>/dev/null || true
 
 install: ## Install deps across all sub-projects
 	cd $(WEB)     && bun install
@@ -100,6 +102,9 @@ advisors: ## Run Supabase security/performance advisors
 web-dev: ## Run the web app in dev mode (:3000)
 	cd $(WEB) && bun run dev
 
+web-stop: ## Stop the local web dev server (:3000)
+	-lsof -ti tcp:3000 | xargs kill 2>/dev/null || true
+
 web-build: ## Build the web app
 	cd $(WEB) && bun run build
 
@@ -139,11 +144,8 @@ shared-typecheck: ## Typecheck the shared package
 ## Docker (web container)
 ## ----------------------------------------------------------------------------
 
-docker-up: ## Build + run the web app container (:3000)
+docker-up: ## Build + run the web app container (:3000) — stop it with `make dev-down`
 	docker compose up --build -d
-
-docker-down: ## Stop the web app container
-	docker compose down
 
 docker-logs: ## Tail the web container logs
 	docker compose logs -f web
